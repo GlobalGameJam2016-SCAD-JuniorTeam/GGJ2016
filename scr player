@@ -1,0 +1,113 @@
+#pragma strict
+
+var spd = 0f;
+var x_gra = 0f;
+var y_gra = 0f;
+var jph = 0f;
+var grav = 0f;
+var max_fallSpd = 0f;
+var max_moveSpd = 0f;
+var fric = 0f;
+var player = 0;
+var rw = 0f; // room width
+var rh = 0f; // room height
+var text = "";
+
+function Start () {
+	spd = 0.01;
+	fric = 0.99;
+	grav = 0.0075;
+	jph = 0.2;
+	max_moveSpd = 0.15;
+	max_fallSpd = 0.5;
+	rw = 8.75;
+	rh = 4.75;
+
+	if (gameObject.name == "obj_player1") {player = 1;}
+	if (gameObject.name == "obj_player2") {player = 2;}
+}
+
+function Update () {
+	if (player == 1) {
+		if (Input.GetKey(KeyCode.RightArrow)) {
+			x_gra += spd;
+		}
+		if (Input.GetKey(KeyCode.LeftArrow)) {
+			x_gra -= spd;
+		}
+		if (Input.GetKeyDown(KeyCode.UpArrow)) {
+			y_gra = jph;
+		}
+	}
+	if (player == 2) {
+		if (Input.GetKey(KeyCode.D)) {
+			x_gra += spd;
+		}
+		if (Input.GetKey(KeyCode.A)) {
+			x_gra -= spd;
+		}
+		if (Input.GetKeyDown(KeyCode.W)) {
+			y_gra = jph;
+		}
+	}
+
+	x_gra *= fric;
+	y_gra -= grav;
+
+	if (x_gra < -max_moveSpd) {
+		x_gra = -max_moveSpd;
+	}
+	if (x_gra >  max_moveSpd) {
+		x_gra =  max_moveSpd;
+	}
+	if (y_gra < -max_fallSpd) {
+		y_gra = -max_fallSpd;
+	}
+
+	transform.position.x += x_gra;
+	transform.position.y += y_gra;
+
+	if (transform.position.y < -rh) {
+		transform.position.y = -rh;
+	}
+	if (transform.position.y >  rh) {
+
+	}
+	if (transform.position.x > rw) {
+		transform.position.x = rw;
+		if (x_gra > 0) {
+			x_gra *= -0.5;
+			if (x_gra > 0.1) {
+				y_gra += jph*0.25;
+			}
+		}
+	}
+	if (transform.position.x <-rw) {
+		transform.position.x =-rw;
+		if (x_gra < 0) {
+			x_gra *= -0.5;
+			if (x_gra <-0.1) {
+				y_gra += jph*0.25;
+			}
+		}
+	}
+
+	text = "obj_player2";
+	if (Mathf.Abs(GameObject.Find(text).gameObject.transform.position.x - transform.position.x) < 0.25) { // if has close X) {
+		if (Mathf.Abs(GameObject.Find(text).gameObject.transform.position.y - transform.position.y) < 0.25) { // if has close X) {
+			if (gameObject.name == "obj_player1") { // touching already
+				if (transform.position.x > GameObject.Find(text).gameObject.transform.position.x) {
+					transform.position.x += 0.25;
+					x_gra *= -0.5;
+					GameObject.Find(text).gameObject.transform.position.x -= 0.25;
+					GameObject.Find(text).GetComponent(scr_player).x_gra -= 0.25;
+				} else {
+					transform.position.x -= 0.25;
+					x_gra *= -0.5;
+					GameObject.Find(text).gameObject.transform.position.x += 0.25;
+					GameObject.Find(text).GetComponent(scr_player).x_gra += 0.25;
+				}
+			}
+		}
+	}
+}
